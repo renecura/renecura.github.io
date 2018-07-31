@@ -1,5 +1,5 @@
-
-let bx = 4;
+let zoom = 4;
+let bx;
 let step;
 let f = fun;
 let g = undefined;
@@ -9,12 +9,12 @@ let h = undefined;
 function setup() {
   createCanvas(600,600);
   
-  frameRate(1);
+  //frameRate(1);
 }
 
 function draw() {
-
-  step = bx / width;
+  bx = zoom;
+  step = 2 * bx / width;
 
   background(0);
 
@@ -28,6 +28,13 @@ function draw() {
   line(xsnap(1), 0, xsnap(1), height);
   line(0, ysnap(-1), width, ysnap(-1));
   line(xsnap(-1), 0, xsnap(-1), height);
+
+
+  noStroke();
+  fill(255);
+  ellipse(mouseX, height/2, 5);
+  ellipse(width/2, ysnap(f(map(mouseX,0,height,-bx,bx))), 5);
+
 
   
   strokeWeight(2);
@@ -72,4 +79,11 @@ function xsnap(x){
 
 function ysnap(y){
   return map(y,bx,-bx,0,height);
+}
+
+function rectfun(m, b){
+  const y0 = m * -100 + b;
+  const y1 = m *  100 + b;
+
+
 }
