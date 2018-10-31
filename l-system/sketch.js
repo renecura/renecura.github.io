@@ -1,7 +1,7 @@
 
-// const rules = {
-//   'F':'FF+[+F-F-F]-[-F+F+F]'
-// }
+const rules = {
+  'F':'FF+[+F-F-F]-[-F+F+F]'
+}
 
 // const commands = {
 //   'F': () => { line(0,0,0,-length); translate(0,-length) },
@@ -14,21 +14,28 @@
 
 // Parametros
 let length = 1;
-let chains = ['FX'];
-let ratio = 0.7;
-let angle = 1;
-let step = 1;
+let ratio = 0.4;
+let angle = 0.436332;
+//let step = 1;
+//let chains = ['+XF'];
 
 // Reglas
-const rules = {
-  'X':'X+YF+',
-  'Y':'-FX-Y'
-}
+// const rules = {
+//   'X':'X+YF+',
+//   'Y':'-FX-Y'
+// }
+// const rules = {
+//   'X':'F+[[X]-X]-F[-FX]+X',
+//   'F':'FF'
+// }
+
 
 // Comandos
 const commands = {
-  'F':() => { line(0,0,0, -length * (ratio**step));
-              translate(0,-length * (ratio**step)); },
+  'F':() => { line(0,0,0, -length * (ratio**ls.step));
+              translate(0,-length * (ratio**ls.step)); },
+  'G':() => { line(0,0,0, -length * (ratio**ls.step));
+              translate(0,-length * (ratio**ls.step)); },
   '+':() => { rotate(angle);  },
   '-':() => { rotate(-angle); },
   '[':() => { push(); },
@@ -36,49 +43,53 @@ const commands = {
 }
 
 
+const ls = new LSystem(commands);
+ls.axiom = 'F';
+ls.rules = rules;
 
 
+let centx = 0;
+let centy = 0;
 
+function restart(axiom, rules){
+  ls.axiom = axiom;
+  ls.parserules(rules);
+  ls.start();
+}
 
+function stepforward(){
+  ls.stepforward();
+}
 
-function lexpand(axiom, rules){
-  result = '';
-
-  for (const c of axiom) {
-    result += rules[c] == undefined? c: rules[c];
-  }
-
-  return result;
+function stepbackward(){
+  ls.stepbackward();
 }
 
 
-function turtle(chain, commands){
-  for (const c of chain) {
-    if(commands[c]) 
-      commands[c]();
-  }
+function setangle(ang){
+  angle = radians(ang);
 }
 
-
-function mousePressed(){
-  if(keyIsDown(SHIFT)){
-    if(chains.length > 1){
-      chains.shift();
-      step = chains.length;
-    } 
-    return;
-  }
-
-  chains.unshift(lexpand(chains[0], rules));
-  step = chains.length; 
+function setratio(rat){
+  ratio = rat;
 }
-
 
 function setup() {
-  createCanvas(800, 600);
-  frameRate(5);
+  const canvas = createCanvas(800, 600);
+  canvas.parent('sketch-holder');
+
+  centx = width/2;
+  centy = height/2;
+  canvas.mousePressed(() => {
+    centx = mouseX;
+    centy = mouseY;
+    console.log(centx, centy);
+  });
+
   length = height/2;
-  angle = PI/2;
+  angle = PI/6;
+
+  noLoop();
 }
 
 function draw() {
@@ -87,9 +98,9 @@ function draw() {
 
   background(51);
 
-  translate(width/2, height/2);
+  translate(centx, centy);
 
   stroke(255, 100);
   strokeWeight(3);
-  turtle(chains[0], commands);
+  ls.turtle();
 }
